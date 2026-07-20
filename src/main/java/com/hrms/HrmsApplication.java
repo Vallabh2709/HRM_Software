@@ -1,13 +1,13 @@
-package com.example.hrm_software;
+package com.hrms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class HrmSoftwareApplication {
+public class HrmsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(HrmSoftwareApplication.class, args);
+		SpringApplication.run(HrmsApplication.class, args);
 	}
 
 }

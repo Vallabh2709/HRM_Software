@@ -1,10 +1,10 @@
-package com.example.hrm_software;
+package hrms.hrm_software;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class HrmSoftwareApplicationTests {
+class HrmsApplicationTests {
 
 	@Test
 	void contextLoads() {
