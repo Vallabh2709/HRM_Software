@@ -6,6 +6,7 @@ import com.hrms.entity.Department;
 import com.hrms.repository.DepartmentRepository;
 import com.hrms.service.DepartmentService;
 import org.springframework.stereotype.Service;
+import com.hrms.exception.ResourceAlreadyExistsException;
 
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
@@ -20,7 +21,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     public DepartmentResponse createDepartment(CreateDepartmentRequest request) {
 
         if (departmentRepository.existsByName(request.getName())) {
-            throw new RuntimeException("Department already exists.");
+            throw new ResourceAlreadyExistsException("Department already exists.");
         }
         Department department = new Department();
         department.setName(request.getName());
