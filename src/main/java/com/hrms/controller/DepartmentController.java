@@ -1,11 +1,14 @@
 package com.hrms.controller;
 
 import com.hrms.dto.request.CreateDepartmentRequest;
+import com.hrms.dto.request.UpdateDepartmentRequest;
 import com.hrms.dto.response.DepartmentResponse;
 import com.hrms.service.DepartmentService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/departments")
@@ -24,4 +27,28 @@ public class DepartmentController {
 
         return departmentService.createDepartment(request);
     }
+    @GetMapping
+    public List<DepartmentResponse> getAllDepartments() {
+
+        return departmentService.getAllDepartments();
+    }
+    @GetMapping("/{id}")
+    public DepartmentResponse getDepartmentById(@PathVariable Long id) {
+
+        return departmentService.getDepartmentById(id);
+    }
+    @PutMapping("/{id}")
+    public DepartmentResponse updateDepartment(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateDepartmentRequest request) {
+
+        return departmentService.updateDepartment(id, request);
+    }
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteDepartment(@PathVariable Long id) {
+
+        departmentService.deleteDepartment(id);
+    }
+
 }

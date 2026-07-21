@@ -17,4 +17,6 @@ public interface DesignationRepository extends JpaRepository<Designation, Long> 
     );
 
     List<Designation> findByStatusTrue();
+
+    boolean existsByDepartmentAndStatusTrue(Department department);
 }
