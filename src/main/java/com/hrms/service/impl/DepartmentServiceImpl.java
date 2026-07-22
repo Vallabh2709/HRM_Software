@@ -9,29 +9,40 @@ import com.hrms.exception.ResourceNotFoundException;
 import com.hrms.repository.DepartmentRepository;
 import com.hrms.repository.DesignationRepository;
 import com.hrms.service.DepartmentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
     private final DesignationRepository designationRepository;
 
-    public DepartmentServiceImpl(
-            DepartmentRepository departmentRepository,
-            DesignationRepository designationRepository) {
-
-        this.departmentRepository = departmentRepository;
-        this.designationRepository = designationRepository;
-    }
-
     @Override
     public DepartmentResponse createDepartment(CreateDepartmentRequest request) {
 
-        if (departmentRepository.existsByName(request.getName())) {
-            throw new ResourceAlreadyExistsException("Department already exists.");
+        Department existingDepartment = departmentRepository
+                .findByNameIgnoreCase(request.getName())
+                .orElse(null);
+
+        if (existingDepartment != null) {
+
+            if (existingDepartment.getStatus()) {
+                throw new ResourceAlreadyExistsException("Department already exists.");
+            }
+
+            // Restore soft deleted department
+            existingDepartment.setStatus(true);
+            existingDepartment.setDescription(request.getDescription());
+
+            Department restoredDepartment = departmentRepository.save(existingDepartment);
+
+            return mapToResponse(restoredDepartment);
         }
 
         Department department = new Department();
@@ -44,16 +55,17 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<DepartmentResponse> getAllDepartments() {
 
-        List<Department> departments = departmentRepository.findByStatusTrue();
-
-        return departments.stream()
+        return departmentRepository.findByStatusTrue()
+                .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public DepartmentResponse getDepartmentById(Long id) {
 
         Department department = departmentRepository.findById(id)
@@ -72,12 +84,10 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Department not found."));
 
-        if (departmentRepository.existsByNameAndIdNot(
-                request.getName(),
-                id)) {
+        if (departmentRepository.existsByNameIgnoreCaseAndIdNot(
+                request.getName(), id)) {
 
-            throw new ResourceAlreadyExistsException(
-                    "Department already exists.");
+            throw new ResourceAlreadyExistsException("Department already exists.");
         }
 
         department.setName(request.getName());
@@ -109,9 +119,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         departmentRepository.save(department);
     }
 
-    /**
-     * Converts Department Entity to DepartmentResponse DTO
-     */
     private DepartmentResponse mapToResponse(Department department) {
 
         DepartmentResponse response = new DepartmentResponse();

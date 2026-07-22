@@ -1,0 +1,119 @@
+package com.hrms.service.impl;
+
+import com.hrms.dto.request.CreateEmployeeRequest;
+import com.hrms.dto.response.EmployeeResponse;
+import com.hrms.entity.Department;
+import com.hrms.entity.Designation;
+import com.hrms.entity.Employee;
+import com.hrms.entity.User;
+import com.hrms.exception.ResourceAlreadyExistsException;
+import com.hrms.exception.ResourceNotFoundException;
+import com.hrms.repository.DepartmentRepository;
+import com.hrms.repository.DesignationRepository;
+import com.hrms.repository.EmployeeRepository;
+import com.hrms.service.EmployeeService;
+import com.hrms.service.UserService;
+import com.hrms.service.generator.EmployeeCodeGenerator;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import com.hrms.exception.InvalidRequestException;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class EmployeeServiceImpl implements EmployeeService {
+
+    private final EmployeeRepository employeeRepository;
+    private final DepartmentRepository departmentRepository;
+    private final DesignationRepository designationRepository;
+    private final UserService userService;
+    private final EmployeeCodeGenerator employeeCodeGenerator;
+
+    @Override
+    public EmployeeResponse createEmployee(CreateEmployeeRequest request) {
+
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found."));
+
+        if (!department.getStatus()) {
+            throw new InvalidRequestException(
+                    "Cannot assign an employee to an inactive department."
+            );
+        }
+        Designation designation = designationRepository.findById(request.getDesignationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Designation not found."));
+
+        if (!designation.getStatus()) {
+            throw new InvalidRequestException(
+                    "Cannot assign an employee to an inactive designation."
+            );
+        }
+
+
+        if (!designation.getDepartment().getId().equals(department.getId())) {
+            throw new InvalidRequestException(
+                    "The selected designation does not belong to the selected department."
+            );
+        }
+
+        if (employeeRepository.existsByPhone(request.getPhone())) {
+            throw new ResourceAlreadyExistsException("Phone number already exists.");
+        }
+        User user = userService.createEmployeeUser(request.getEmail());
+
+        Employee employee = Employee.builder()
+                .employeeCode(employeeCodeGenerator.generateEmployeeCode())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .phone(request.getPhone())
+                .dateOfBirth(request.getDateOfBirth())
+                .gender(request.getGender())
+                .joiningDate(request.getJoiningDate())
+                .department(department)
+                .designation(designation)
+                .user(user)
+                .build();
+
+        Employee savedEmployee = employeeRepository.save(employee);
+
+        return mapToResponse(savedEmployee);
+    }
+
+    @Override
+    public EmployeeResponse getEmployeeById(Long id) {
+
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found."));
+
+        return mapToResponse(employee);
+    }
+
+    @Override
+    public List<EmployeeResponse> getAllEmployees() {
+
+        return employeeRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    private EmployeeResponse mapToResponse(Employee employee) {
+
+        return EmployeeResponse.builder()
+                .id(employee.getId())
+                .employeeCode(employee.getEmployeeCode())
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .email(employee.getUser().getEmail())
+                .phone(employee.getPhone())
+                .dateOfBirth(employee.getDateOfBirth())
+                .gender(employee.getGender())
+                .joiningDate(employee.getJoiningDate())
+                .active(employee.isActive())
+                .departmentName(employee.getDepartment().getName())
+                .designationName(employee.getDesignation().getName())
+                .build();
+    }
+}

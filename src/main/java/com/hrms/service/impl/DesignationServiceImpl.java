@@ -1,73 +1,84 @@
 package com.hrms.service.impl;
 
 import com.hrms.dto.request.CreateDesignationRequest;
+import com.hrms.dto.request.UpdateDesignationRequest;
 import com.hrms.dto.response.DesignationResponse;
 import com.hrms.entity.Department;
 import com.hrms.entity.Designation;
+import com.hrms.exception.InvalidRequestException;
 import com.hrms.exception.ResourceAlreadyExistsException;
 import com.hrms.exception.ResourceNotFoundException;
 import com.hrms.repository.DepartmentRepository;
 import com.hrms.repository.DesignationRepository;
+import com.hrms.repository.EmployeeRepository;
 import com.hrms.service.DesignationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.hrms.dto.request.CreateDesignationRequest;
-import com.hrms.dto.request.UpdateDesignationRequest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class DesignationServiceImpl implements DesignationService {
 
     private final DesignationRepository designationRepository;
     private final DepartmentRepository departmentRepository;
-
-    public DesignationServiceImpl(
-            DesignationRepository designationRepository,
-            DepartmentRepository departmentRepository) {
-
-        this.designationRepository = designationRepository;
-        this.departmentRepository = departmentRepository;
-    }
+    private final EmployeeRepository employeeRepository;
 
     @Override
     public DesignationResponse createDesignation(CreateDesignationRequest request) {
 
-        // Check if department exists
         Department department = departmentRepository.findById(request.getDepartmentId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Department not found."));
 
-        // Check duplicate designation in same department
-        if (designationRepository.existsByNameAndDepartment(
-                request.getName(), department)) {
+        Designation existingDesignation = designationRepository
+                .findByDepartmentAndNameIgnoreCase(
+                        department,
+                        request.getName())
+                .orElse(null);
 
-            throw new ResourceAlreadyExistsException(
-                    "Designation already exists in this department.");
+        if (existingDesignation != null) {
+
+            if (existingDesignation.getStatus()) {
+                throw new ResourceAlreadyExistsException(
+                        "Designation already exists in this department.");
+            }
+
+            existingDesignation.setStatus(true);
+            existingDesignation.setDescription(request.getDescription());
+
+            Designation restoredDesignation =
+                    designationRepository.save(existingDesignation);
+
+            return mapToResponse(restoredDesignation);
         }
 
-        // Create designation
         Designation designation = new Designation();
         designation.setDepartment(department);
         designation.setName(request.getName());
         designation.setDescription(request.getDescription());
 
-        // Save designation
-        Designation savedDesignation = designationRepository.save(designation);
+        Designation savedDesignation =
+                designationRepository.save(designation);
 
         return mapToResponse(savedDesignation);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<DesignationResponse> getAllDesignations() {
 
-        List<Designation> designations = designationRepository.findByStatusTrue();
-
-        return designations.stream()
+        return designationRepository.findByStatusTrue()
+                .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public DesignationResponse getDesignationById(Long id) {
 
         Designation designation = designationRepository.findById(id)
@@ -77,9 +88,60 @@ public class DesignationServiceImpl implements DesignationService {
         return mapToResponse(designation);
     }
 
-    /**
-     * Converts Designation Entity to DesignationResponse DTO
-     */
+    @Override
+    public DesignationResponse updateDesignation(
+            Long id,
+            UpdateDesignationRequest request) {
+
+        Designation designation = designationRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Designation not found."));
+
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Department not found."));
+
+        if (designationRepository.existsByDepartmentAndNameIgnoreCaseAndIdNot(
+                department,
+                request.getName(),
+                id)) {
+
+            throw new ResourceAlreadyExistsException(
+                    "Designation already exists in this department.");
+        }
+
+        designation.setDepartment(department);
+        designation.setName(request.getName());
+        designation.setDescription(request.getDescription());
+
+        Designation updatedDesignation =
+                designationRepository.save(designation);
+
+        return mapToResponse(updatedDesignation);
+    }
+
+    @Override
+    public void deleteDesignation(Long id) {
+
+        Designation designation = designationRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Designation not found."));
+
+        if (!designation.getStatus()) {
+            throw new ResourceNotFoundException("Designation already deleted.");
+        }
+
+        if (employeeRepository.existsByDesignationAndActiveTrue(designation)) {
+            throw new InvalidRequestException(
+                    "Designation cannot be deleted because it has active employees."
+            );
+        }
+
+        designation.setStatus(false);
+
+        designationRepository.save(designation);
+    }
+
     private DesignationResponse mapToResponse(Designation designation) {
 
         DesignationResponse response = new DesignationResponse();
@@ -94,57 +156,5 @@ public class DesignationServiceImpl implements DesignationService {
         response.setUpdatedAt(designation.getUpdatedAt());
 
         return response;
-    }
-
-
-    @Override
-    public DesignationResponse updateDesignation(
-            Long id,
-            UpdateDesignationRequest request) {
-
-        // Check if designation exists
-        Designation designation = designationRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Designation not found."));
-
-        // Check if department exists
-        Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Department not found."));
-
-        // Check duplicate designation
-        if (designationRepository.existsByNameAndDepartmentAndIdNot(
-                request.getName(),
-                department,
-                id)) {
-
-            throw new ResourceAlreadyExistsException(
-                    "Designation already exists in this department.");
-        }
-
-        // Update fields
-        designation.setDepartment(department);
-        designation.setName(request.getName());
-        designation.setDescription(request.getDescription());
-
-        // Save updated designation
-        Designation updatedDesignation = designationRepository.save(designation);
-
-        return mapToResponse(updatedDesignation);
-    }
-    @Override
-    public void deleteDesignation(Long id) {
-
-        Designation designation = designationRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Designation not found."));
-
-        if (!designation.getStatus()) {
-            throw new ResourceNotFoundException("Designation already deleted.");
-        }
-
-        designation.setStatus(false);
-
-        designationRepository.save(designation);
     }
 }

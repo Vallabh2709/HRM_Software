@@ -1,12 +1,11 @@
 package com.hrms.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Getter
-@AllArgsConstructor
 public class ErrorResponse {
 
     private LocalDateTime timestamp;
@@ -19,4 +18,38 @@ public class ErrorResponse {
 
     private String path;
 
+    private Map<String, String> errors;
+
+    // Constructor for normal exceptions
+    public ErrorResponse(
+            LocalDateTime timestamp,
+            int status,
+            String error,
+            String message,
+            String path) {
+
+        this.timestamp = timestamp;
+        this.status = status;
+        this.error = error;
+        this.message = message;
+        this.path = path;
+        this.errors = null;
+    }
+
+    // Constructor for validation exceptions
+    public ErrorResponse(
+            LocalDateTime timestamp,
+            int status,
+            String error,
+            String message,
+            String path,
+            Map<String, String> errors) {
+
+        this.timestamp = timestamp;
+        this.status = status;
+        this.error = error;
+        this.message = message;
+        this.path = path;
+        this.errors = errors;
+    }
 }

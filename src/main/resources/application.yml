@@ -18,5 +18,14 @@ spring:
       hibernate:
         format_sql: true
 
+
+
+
+
 server:
   port: 8081
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
