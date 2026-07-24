@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.hrms.dto.request.UpdateEmployeeRequest;
 import java.util.List;
 
 @RestController
@@ -42,6 +42,16 @@ public class EmployeeController {
         List<EmployeeResponse> employees = employeeService.getAllEmployees();
 
         return ResponseEntity.ok(employees);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EmployeeResponse> updateEmployee(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateEmployeeRequest request) {
+
+        EmployeeResponse response = employeeService.updateEmployee(id, request);
+
+        return ResponseEntity.ok(response);
     }
 
 }

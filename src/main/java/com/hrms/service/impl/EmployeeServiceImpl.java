@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.hrms.exception.InvalidRequestException;
 import java.util.List;
+import com.hrms.dto.request.UpdateEmployeeRequest;
+
 
 @Service
 @RequiredArgsConstructor
@@ -115,5 +117,58 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .departmentName(employee.getDepartment().getName())
                 .designationName(employee.getDesignation().getName())
                 .build();
+    }
+
+    @Override
+    public EmployeeResponse updateEmployee(Long id, UpdateEmployeeRequest request) {
+
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee not found."));
+
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Department not found."));
+
+        if (!department.getStatus()) {
+            throw new InvalidRequestException(
+                    "Cannot assign an employee to an inactive department."
+            );
+        }
+
+        Designation designation = designationRepository.findById(request.getDesignationId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Designation not found."));
+
+        if (!designation.getStatus()) {
+            throw new InvalidRequestException(
+                    "Cannot assign an employee to an inactive designation."
+            );
+        }
+
+        if (!designation.getDepartment().getId().equals(department.getId())) {
+            throw new InvalidRequestException(
+                    "The selected designation does not belong to the selected department."
+            );
+        }
+
+        if (employeeRepository.existsByPhoneAndIdNot(request.getPhone(), id)) {
+            throw new ResourceAlreadyExistsException(
+                    "Phone number already exists."
+            );
+        }
+
+        employee.setFirstName(request.getFirstName());
+        employee.setLastName(request.getLastName());
+        employee.setPhone(request.getPhone());
+        employee.setDateOfBirth(request.getDateOfBirth());
+        employee.setGender(request.getGender());
+        employee.setJoiningDate(request.getJoiningDate());
+        employee.setDepartment(department);
+        employee.setDesignation(designation);
+
+        Employee updatedEmployee = employeeRepository.save(employee);
+
+        return mapToResponse(updatedEmployee);
     }
 }
