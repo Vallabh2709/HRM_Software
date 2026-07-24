@@ -95,7 +95,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeResponse> getAllEmployees() {
 
-        return employeeRepository.findAll()
+        return employeeRepository.findByActiveTrue()
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
@@ -170,5 +170,52 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee updatedEmployee = employeeRepository.save(employee);
 
         return mapToResponse(updatedEmployee);
+    }
+
+    @Override
+    @Transactional
+    public void deleteEmployee(Long id) {
+
+        // Step 1: Find employee
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found."));
+
+        // Step 2: Check if already inactive
+        if (!employee.isActive())  {
+            throw new InvalidRequestException("Employee is already inactive.");
+        }
+
+        // Step 3: Soft delete employee
+        employee.setActive(false);
+
+        // Step 4: Disable login
+        employee.getUser().setEnabled(false);
+
+        // Step 5: Save
+        employeeRepository.save(employee);
+    }
+
+    @Override
+    @Transactional
+    public void restoreEmployee(Long id) {
+
+        // Step 1: Find employee
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee not found."));
+
+        // Step 2: Check if already active
+        if (employee.isActive()) {
+            throw new InvalidRequestException("Employee is already active.");
+        }
+
+        // Step 3: Restore employee
+        employee.setActive(true);
+
+        // Step 4: Enable login
+        employee.getUser().setEnabled(true);
+
+        // Step 5: Save
+        employeeRepository.save(employee);
     }
 }
