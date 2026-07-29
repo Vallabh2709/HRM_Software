@@ -4,6 +4,7 @@ import com.hrms.dto.request.CreateEmployeeRequest;
 import com.hrms.dto.response.CreateEmployeeResponse;
 import com.hrms.dto.response.EmployeeResponse;
 import com.hrms.service.EmployeeService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,10 @@ import com.hrms.dto.request.UpdateEmployeeRequest;
 import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-
+@Tag(
+        name = "Employee Management",
+        description = "APIs for managing employees"
+)
 @RestController
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor

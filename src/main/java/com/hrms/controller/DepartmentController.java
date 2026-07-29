@@ -4,12 +4,16 @@ import com.hrms.dto.request.CreateDepartmentRequest;
 import com.hrms.dto.request.UpdateDepartmentRequest;
 import com.hrms.dto.response.DepartmentResponse;
 import com.hrms.service.DepartmentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Tag(
+        name = "Department Management",
+        description = "APIs for managing departments"
+)
 @RestController
 @RequestMapping("/api/departments")
 public class DepartmentController {

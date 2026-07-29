@@ -4,12 +4,16 @@ import com.hrms.dto.request.CreateDesignationRequest;
 import com.hrms.dto.request.UpdateDesignationRequest;
 import com.hrms.dto.response.DesignationResponse;
 import com.hrms.service.DesignationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Tag(
+        name = "Designation Management",
+        description = "APIs for managing designations"
+)
 @RestController
 @RequestMapping("/api/designations")
 public class DesignationController {

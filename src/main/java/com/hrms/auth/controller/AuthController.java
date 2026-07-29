@@ -13,8 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.hrms.auth.dto.request.ChangePasswordRequest;
 import com.hrms.auth.dto.response.MessageResponse;
-
-
+import io.swagger.v3.oas.annotations.tags.Tag;
+@Tag(
+        name = "Authentication",
+        description = "Authentication and Account Management APIs"
+)
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
