@@ -20,7 +20,8 @@ import org.springframework.stereotype.Service;
 import com.hrms.exception.InvalidRequestException;
 import java.util.List;
 import com.hrms.dto.request.UpdateEmployeeRequest;
-
+import com.hrms.dto.internal.CreateUserResult;
+import com.hrms.dto.response.CreateEmployeeResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -33,9 +34,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final UserService userService;
     private final EmployeeCodeGenerator employeeCodeGenerator;
 
-    @Override
-    public EmployeeResponse createEmployee(CreateEmployeeRequest request) {
 
+    @Override
+    public CreateEmployeeResponse createEmployee(CreateEmployeeRequest request) {
         Department department = departmentRepository.findById(request.getDepartmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found."));
 
@@ -63,8 +64,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeRepository.existsByPhone(request.getPhone())) {
             throw new ResourceAlreadyExistsException("Phone number already exists.");
         }
-        User user = userService.createEmployeeUser(request.getEmail());
+// Create login account and generate temporary password
+        CreateUserResult createUserResult = userService.createEmployeeUser(request.getEmail());
 
+// Extract the saved user
+        User user = createUserResult.getUser();
         Employee employee = Employee.builder()
                 .employeeCode(employeeCodeGenerator.generateEmployeeCode())
                 .firstName(request.getFirstName())
@@ -80,7 +84,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee savedEmployee = employeeRepository.save(employee);
 
-        return mapToResponse(savedEmployee);
+        return mapToCreateResponse(
+                savedEmployee,
+                createUserResult.getTemporaryPassword()
+        );
     }
 
     @Override
@@ -116,6 +123,31 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .active(employee.isActive())
                 .departmentName(employee.getDepartment().getName())
                 .designationName(employee.getDesignation().getName())
+                .build();
+    }
+
+
+    private CreateEmployeeResponse mapToCreateResponse(
+            Employee employee,
+            String temporaryPassword) {
+
+        return CreateEmployeeResponse.builder()
+                .id(employee.getId())
+                .employeeCode(employee.getEmployeeCode())
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .email(employee.getUser().getEmail())
+                .phone(employee.getPhone())
+                .dateOfBirth(employee.getDateOfBirth())
+                .gender(employee.getGender())
+                .joiningDate(employee.getJoiningDate())
+                .active(employee.isActive())
+                .departmentName(employee.getDepartment().getName())
+                .designationName(employee.getDesignation().getName())
+
+                // Return only once during employee creation
+                .temporaryPassword(temporaryPassword)
+
                 .build();
     }
 

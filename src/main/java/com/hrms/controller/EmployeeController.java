@@ -1,6 +1,7 @@
 package com.hrms.controller;
 
 import com.hrms.dto.request.CreateEmployeeRequest;
+import com.hrms.dto.response.CreateEmployeeResponse;
 import com.hrms.dto.response.EmployeeResponse;
 import com.hrms.service.EmployeeService;
 import jakarta.validation.Valid;
@@ -19,10 +20,10 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @PostMapping
-    public ResponseEntity<EmployeeResponse> createEmployee(
+    public ResponseEntity<CreateEmployeeResponse> createEmployee(
             @Valid @RequestBody CreateEmployeeRequest request) {
 
-        EmployeeResponse response = employeeService.createEmployee(request);
+        CreateEmployeeResponse response = employeeService.createEmployee(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

@@ -1,10 +1,11 @@
 package com.hrms.service;
 
+import com.hrms.dto.internal.CreateUserResult;
 import com.hrms.entity.User;
 
 public interface UserService {
 
-    User createEmployeeUser(String email);
+    CreateUserResult createEmployeeUser(String email);
 
     boolean emailExists(String email);
 
