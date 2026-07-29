@@ -13,6 +13,21 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LoginResponse {
 
+    /**
+     * Success message
+     */
     private String message;
 
+    /**
+     * JWT Access Token
+     */
+    private String token;
+
+    /**
+     * Token Type
+     * Example: Bearer
+     */
+    @Builder.Default
+    private String tokenType = "Bearer";
+    private boolean passwordChanged;
 }

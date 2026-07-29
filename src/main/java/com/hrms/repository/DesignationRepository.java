@@ -26,4 +26,7 @@ public interface DesignationRepository
     boolean existsByDepartmentAndStatusTrue(
             Department department
     );
+
+
+    Optional<Designation> findByName(String name);
 }

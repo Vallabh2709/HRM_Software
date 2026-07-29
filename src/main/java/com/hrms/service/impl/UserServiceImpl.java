@@ -10,7 +10,7 @@ import com.hrms.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.hrms.dto.internal.CreateUserResult;
+
 import java.util.UUID;
 
 @Service
@@ -18,13 +18,10 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
-    // Inject PasswordEncoder bean from SecurityConfig
-    // Spring will automatically provide the BCryptPasswordEncoder bean
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public CreateUserResult createEmployeeUser(String email) {
+    public CreateUserResult createUser(String email, Role role) {
 
         // Check if the email already exists
         if (emailExists(email)) {
@@ -42,7 +39,7 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .email(email)
                 .password(encodedPassword)
-                .role(Role.EMPLOYEE)
+                .role(role)
                 .enabled(true)
                 .passwordChanged(false)
                 .build();
@@ -73,11 +70,18 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Generates an 8-character temporary password.
-     * Example: A1B2C3D4
-     *
-     * This password will be encrypted before storing in the database.
      */
     private String generateTemporaryPassword() {
-        return UUID.randomUUID().toString().substring(0, 8);
+
+        return "Temp@" + (1000 + new java.util.Random().nextInt(9000));
+    }
+
+    @Override
+    public void changePassword(User user, String encodedPassword) {
+
+        user.setPassword(encodedPassword);
+        user.setPasswordChanged(true);
+
+        userRepository.save(user);
     }
 }

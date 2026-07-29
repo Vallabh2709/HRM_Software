@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.hrms.dto.request.UpdateEmployeeRequest;
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 
 @RestController
 @RequestMapping("/api/employees")
@@ -20,6 +22,7 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CreateEmployeeResponse> createEmployee(
             @Valid @RequestBody CreateEmployeeRequest request) {
 
@@ -29,6 +32,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EmployeeResponse> getEmployeeById(
             @PathVariable Long id) {
 
@@ -38,6 +42,7 @@ public class EmployeeController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EmployeeResponse>> getAllEmployees() {
 
         List<EmployeeResponse> employees = employeeService.getAllEmployees();
@@ -46,6 +51,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EmployeeResponse> updateEmployee(
             @PathVariable Long id,
             @Valid @RequestBody UpdateEmployeeRequest request) {
@@ -54,7 +60,9 @@ public class EmployeeController {
 
         return ResponseEntity.ok(response);
     }
+
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteEmployee(@PathVariable Long id) {
 
         employeeService.deleteEmployee(id);
@@ -63,6 +71,7 @@ public class EmployeeController {
     }
 
     @PatchMapping("/{id}/restore")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> restoreEmployee(@PathVariable Long id) {
 
         employeeService.restoreEmployee(id);
@@ -70,4 +79,12 @@ public class EmployeeController {
         return ResponseEntity.ok("Employee restored successfully.");
     }
 
+    @GetMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<EmployeeResponse> getMyProfile() {
+
+        EmployeeResponse response = employeeService.getMyProfile();
+
+        return ResponseEntity.ok(response);
+    }
 }

@@ -20,4 +20,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     boolean existsByDesignationAndActiveTrue(Designation designation);
 
     List<Employee> findByActiveTrue();
+
+    Optional<Employee> findByUserEmail(String email);
 }

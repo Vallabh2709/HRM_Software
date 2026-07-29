@@ -2,10 +2,7 @@ package com.hrms.service.impl;
 
 import com.hrms.dto.request.CreateEmployeeRequest;
 import com.hrms.dto.response.EmployeeResponse;
-import com.hrms.entity.Department;
-import com.hrms.entity.Designation;
-import com.hrms.entity.Employee;
-import com.hrms.entity.User;
+import com.hrms.entity.*;
 import com.hrms.exception.ResourceAlreadyExistsException;
 import com.hrms.exception.ResourceNotFoundException;
 import com.hrms.repository.DepartmentRepository;
@@ -22,7 +19,8 @@ import java.util.List;
 import com.hrms.dto.request.UpdateEmployeeRequest;
 import com.hrms.dto.internal.CreateUserResult;
 import com.hrms.dto.response.CreateEmployeeResponse;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -65,7 +63,10 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new ResourceAlreadyExistsException("Phone number already exists.");
         }
 // Create login account and generate temporary password
-        CreateUserResult createUserResult = userService.createEmployeeUser(request.getEmail());
+        CreateUserResult createUserResult = userService.createUser(
+                request.getEmail(),
+                Role.EMPLOYEE
+        );
 
 // Extract the saved user
         User user = createUserResult.getUser();
@@ -249,5 +250,21 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // Step 5: Save
         employeeRepository.save(employee);
+    }
+
+
+    @Override
+    public EmployeeResponse getMyProfile() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        Employee employee = employeeRepository.findByUserEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee not found."));
+
+        return mapToResponse(employee);
     }
 }

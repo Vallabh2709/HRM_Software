@@ -1,7 +1,9 @@
 package com.hrms.auth.service;
 
+import com.hrms.auth.dto.request.ChangePasswordRequest;
 import com.hrms.auth.dto.request.LoginRequest;
 import com.hrms.auth.dto.response.LoginResponse;
+import com.hrms.auth.dto.response.MessageResponse;
 
 public interface AuthenticationService {
 
@@ -12,5 +14,5 @@ public interface AuthenticationService {
      * @return Login response
      */
     LoginResponse login(LoginRequest request);
-
+    MessageResponse changePassword(ChangePasswordRequest request);
 }

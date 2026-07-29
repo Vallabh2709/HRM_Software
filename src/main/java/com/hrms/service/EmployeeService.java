@@ -19,5 +19,8 @@ public interface EmployeeService {
 
     void deleteEmployee(Long id);
 
+
     void restoreEmployee(Long id);
+
+    EmployeeResponse getMyProfile();
 }
