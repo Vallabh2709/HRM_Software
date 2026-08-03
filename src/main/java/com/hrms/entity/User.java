@@ -5,6 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,11 +33,19 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private Role role;
 
-    @Column(nullable = false)
     @Builder.Default
+    @Column(nullable = false)
     private boolean enabled = true;
 
-    @Column(name = "password_changed", nullable = false)
     @Builder.Default
+    @Column(name = "password_changed", nullable = false)
     private boolean passwordChanged = false;
+
+    /**
+     * One User belongs to one Employee.
+     * Inverse side of the relationship.
+     */
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private Employee employee;
+
 }
