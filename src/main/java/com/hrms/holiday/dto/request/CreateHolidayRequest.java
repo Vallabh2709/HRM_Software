@@ -1,6 +1,6 @@
 package com.hrms.holiday.dto.request;
 
-import com.hrms.entity.HolidayType;
+import com.hrms.enums.HolidayType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;

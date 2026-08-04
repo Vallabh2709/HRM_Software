@@ -3,6 +3,7 @@ package com.hrms.service.impl;
 import com.hrms.dto.request.CreateEmployeeRequest;
 import com.hrms.dto.response.EmployeeResponse;
 import com.hrms.entity.*;
+import com.hrms.enums.Role;
 import com.hrms.exception.ResourceAlreadyExistsException;
 import com.hrms.exception.ResourceNotFoundException;
 import com.hrms.repository.DepartmentRepository;

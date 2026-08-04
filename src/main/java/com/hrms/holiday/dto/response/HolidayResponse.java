@@ -1,6 +1,6 @@
 package com.hrms.holiday.dto.response;
 
-import com.hrms.entity.HolidayType;
+import com.hrms.enums.HolidayType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;

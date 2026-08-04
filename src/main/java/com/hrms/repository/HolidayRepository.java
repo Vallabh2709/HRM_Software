@@ -49,4 +49,5 @@ public interface HolidayRepository extends JpaRepository<Holiday, Long> {
     Optional<Holiday> findByHolidayDateAndActiveTrue(
             LocalDate holidayDate
     );
+    boolean existsByHolidayDateAndActiveTrue(LocalDate holidayDate);
 }

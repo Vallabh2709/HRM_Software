@@ -1,6 +1,7 @@
 package com.hrms.entity;
 
 import com.hrms.common.entity.BaseEntity;
+import com.hrms.enums.HolidayType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

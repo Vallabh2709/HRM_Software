@@ -1,6 +1,6 @@
 package com.hrms.dto.response;
 
-import com.hrms.entity.Gender;
+import com.hrms.enums.Gender;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

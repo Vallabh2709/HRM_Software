@@ -1,7 +1,7 @@
 package com.hrms.service.impl;
 
 import com.hrms.dto.internal.CreateUserResult;
-import com.hrms.entity.Role;
+import com.hrms.enums.Role;
 import com.hrms.entity.User;
 import com.hrms.exception.ResourceAlreadyExistsException;
 import com.hrms.exception.ResourceNotFoundException;
@@ -10,8 +10,6 @@ import com.hrms.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

@@ -1,7 +1,7 @@
 package com.hrms.user.service.impl;
 
 import com.hrms.entity.Employee;
-import com.hrms.entity.Role;
+import com.hrms.enums.Role;
 import com.hrms.entity.User;
 import com.hrms.exception.InvalidRequestException;
 import com.hrms.exception.ResourceNotFoundException;

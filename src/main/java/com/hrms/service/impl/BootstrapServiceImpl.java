@@ -6,7 +6,7 @@ import com.hrms.dto.response.BootstrapAdminResponse;
 import com.hrms.entity.Department;
 import com.hrms.entity.Designation;
 import com.hrms.entity.Employee;
-import com.hrms.entity.Role;
+import com.hrms.enums.Role;
 import com.hrms.entity.User;
 import com.hrms.exception.InvalidRequestException;
 import com.hrms.exception.ResourceAlreadyExistsException;

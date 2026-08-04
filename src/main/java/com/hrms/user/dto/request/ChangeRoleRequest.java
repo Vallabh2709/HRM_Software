@@ -1,6 +1,6 @@
 package com.hrms.user.dto.request;
 
-import com.hrms.entity.Role;
+import com.hrms.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

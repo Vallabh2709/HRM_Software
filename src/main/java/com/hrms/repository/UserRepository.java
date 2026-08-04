@@ -1,6 +1,6 @@
 package com.hrms.repository;
 
-import com.hrms.entity.Role;
+import com.hrms.enums.Role;
 import com.hrms.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

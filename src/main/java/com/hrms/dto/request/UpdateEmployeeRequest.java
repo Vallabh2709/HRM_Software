@@ -1,6 +1,6 @@
 package com.hrms.dto.request;
 
-import com.hrms.entity.Gender;
+import com.hrms.enums.Gender;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;

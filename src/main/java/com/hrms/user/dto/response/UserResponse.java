@@ -1,6 +1,6 @@
 package com.hrms.user.dto.response;
 
-import com.hrms.entity.Role;
+import com.hrms.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.hrms.entity;
+package com.hrms.enums;
 
 public enum Gender {
 
